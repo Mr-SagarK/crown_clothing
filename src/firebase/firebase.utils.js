@@ -1,3 +1,4 @@
+//import userEvent from '@testing-library/user-event';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
@@ -10,6 +11,27 @@ const config = {
     messagingSenderId: "805653455271",
     appId: "1:805653455271:web:4a68859895cf1052aed682",
     measurementId: "G-0CJET746YP"
+};
+
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+    if (!userAuth) return;
+
+    const userRef = firestore.doc(`users/${userAuth.uid}`);
+    const snaspShot = await userRef.get();
+
+    if (!snaspShot.exists) {
+        const { displayName, email } = userAuth;
+        const createdAt = new Date();
+
+        try {
+            await userRef.set({ displayName, email, createdAt, ...additionalData })
+        }
+        catch (error) {
+            console.log("Error creating user.", error.message);
+        }
+    }
+
+    return userRef;
 };
 
 firebase.initializeApp(config);
